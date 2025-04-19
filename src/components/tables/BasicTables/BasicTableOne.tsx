@@ -1,8 +1,22 @@
-
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../../ui/table";
 import Badge from "../../ui/badge/Badge";
-import { FiTrash2, FiEdit, FiCheckCircle, FiXCircle, FiX } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { Modal } from "../../ui/modal";
+import Input from "../../form/input/InputField";
+import Label from "../../form/Label";
+import Button from "../../ui/button/Button";
+import FileInput from "../../form/input/FileInput";
+import { toast } from "react-toastify";
+import { TableCellWithFilter } from "./TableCellWithFilter";
+
+
+type FilterType = 'startWith' | 'contains' | 'notContains' | 'endsWith' | 'equals' | 'notEquals' | 'noFilter';
+
+interface ColumnFilter {
+  searchTerm: string;
+  filterType: FilterType;
+}
 
 interface User {
   id: number;
@@ -15,6 +29,7 @@ interface User {
     isActive: boolean;
   };
 }
+
 const initialData: User[] = [
   {
     id: 1,
@@ -70,7 +85,7 @@ const initialData: User[] = [
       address: "Tokyo, Japan",
       isActive: false,
     },
-    
+
   },
   {
     id: 6,
@@ -143,234 +158,176 @@ const initialData: User[] = [
 export interface UsersTableHandle {
   handleAdd: () => void;
 }
+
+
 const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
   const [users, setUsers] = useState<User[]>(initialData);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>(initialData);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 4;
+  const [formData, setFormData] = useState<User['user']>({
+    image: "",
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    isActive: true
+  });
 
- // Pagination Logic
- const totalPages = Math.ceil(users.length / rowsPerPage);
- const currentUsers = users.slice(
-   (currentPage - 1) * rowsPerPage,
-   currentPage * rowsPerPage
- );
+  // حالة الفلاتر لكل عمود
+  const [columnFilters, setColumnFilters] = useState<Record<string, ColumnFilter>>({
+    name: { searchTerm: '', filterType: 'noFilter' },
+    email: { searchTerm: '', filterType: 'noFilter' },
+    phone: { searchTerm: '', filterType: 'noFilter' },
+    address: { searchTerm: '', filterType: 'noFilter' },
+    status: { searchTerm: '', filterType: 'noFilter' }
+  });
+
+  const [, setActiveFilterMenu] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false);
+  const [userToAction, setUserToAction] = useState<{ id: number, isActive?: boolean } | null>(null);
+
+  const rowsPerPage = 5;
+
+
+
+  const applyFilters = () => {
+    let result = users;
+
+    // فلترة لكل عمود
+    Object.entries(columnFilters).forEach(([column, filter]) => {
+      if (filter.searchTerm && filter.filterType !== 'noFilter') {
+        const term = filter.searchTerm.toLowerCase();
+
+        result = result.filter(user => {
+          let value = '';
+          if (column === 'status') {
+            value = user.user.isActive ? 'active' : 'inactive';
+          } else {
+            value = String(user.user[column as keyof User['user']]).toLowerCase();
+          }
+
+          switch (filter.filterType) {
+            case 'startWith': return value.startsWith(term);
+            case 'contains': return value.includes(term);
+            case 'notContains': return !value.includes(term);
+            case 'endsWith': return value.endsWith(term);
+            case 'equals': return value === term;
+            case 'notEquals': return value !== term;
+            default: return true;
+          }
+        });
+      }
+    });
+
+    setFilteredUsers(result);
+    setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [users, columnFilters]);
+
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+  const currentUsers = filteredUsers.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+ 
+  const handleSearchChange = (column: string, value: string) => {
+    setColumnFilters(prev => ({
+      ...prev,
+      [column]: {
+        ...prev[column],
+        searchTerm: value
+      }
+    }));
+  };
+
+
+  const handleFilterTypeChange = (column: string, type: FilterType) => {
+    setColumnFilters(prev => ({
+      ...prev,
+      [column]: {
+        ...prev[column],
+        filterType: type
+      }
+    }));
+    setActiveFilterMenu(null);
+  };
 
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure you want to delete this user?")) {
-      setUsers(users.filter(user => user.id !== id));
-    }
+    setUserToAction({ id });
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    setUsers(users.filter(user => user.id !== userToAction?.id));
+    setShowDeleteConfirm(false);
+    toast.success("User deleted successfully");
+  };
+
+  const handleStatusChange = (id: number, isActive: boolean) => {
+    setUserToAction({ id, isActive });
+    setShowStatusConfirm(true);
+  };
+
+  const confirmStatusChange = () => {
+    setUsers(users.map(user =>
+      user.id === userToAction?.id ? { ...user, user: { ...user.user, isActive: userToAction.isActive! } } : user
+    ));
+    setShowStatusConfirm(false);
+    toast.success(`User ${userToAction?.isActive ? "activated" : "deactivated"} successfully`);
   };
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
+    setFormData(user.user);
     setIsAdding(false);
-    setShowForm(true);
-  };
-
-  const handleStatusChange = (id: number, isActive: boolean) => {
-    setUsers(users.map(user => 
-      user.id === id ? { ...user, user: { ...user.user, isActive } } : user
-    ));
+    setIsModalOpen(true);
   };
 
   useImperativeHandle(ref, () => ({
     handleAdd: () => {
       setEditingUser(null);
+      setFormData({
+        image: "",
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+        isActive: true
+      });
       setIsAdding(true);
-      setShowForm(true);
+      setIsModalOpen(true);
     }
   }));
 
-
-  const handleSubmit = (userData: User['user']) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (editingUser) {
       setUsers(users.map(user =>
-        user.id === editingUser.id ? { ...user, user: userData } : user
+        user.id === editingUser.id ? { ...user, user: formData } : user
       ));
+      toast.success("User updated successfully");
     } else {
       const newUser = {
         id: Math.max(...users.map(u => u.id), 0) + 1,
         user: {
-          ...userData,
-          image: userData.image || '/images/user/user-01.jpg' // استخدم الصورة المحددة أو الافتراضية
+          ...formData,
+          image: formData.image || '/images/user/user-01.jpg'
         }
       };
       setUsers([...users, newUser]);
+      toast.success("User added successfully");
     }
-    setShowForm(false);
+    setIsModalOpen(false);
   };
-  return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <div className="max-w-full overflow-x-auto">
-        <Table>
-          {/* Table Header */}
-          <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-            <TableRow>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                ID
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                User
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Email
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Phone
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Address
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Status
-              </TableCell>
-              <TableCell
-                isHeader
-                className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Actions
-              </TableCell>
-            </TableRow>
-          </TableHeader>
 
-          {/* Table Body */}
-          <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {currentUsers.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="px-5 py-4 sm:px-6 text-start text-theme-sm text-gray-500 dark:text-gray-400">
-                  {user.id}
-                </TableCell>
-                <TableCell className="px-5 py-4 sm:px-6 text-start">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 overflow-hidden rounded-full">
-                      <img
-                        width={40}
-                        height={40}
-                        src={user.user.image}
-                        alt={user.user.name}
-                      />
-                    </div>
-                    <div>
-                      <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {user.user.name}
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  {user.user.email}
-                </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  {user.user.phone}
-                </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  {user.user.address}
-                </TableCell>
-                <TableCell className="px-4 py-3 text-start">
-                  <Badge
-                    size="sm"
-                    color={user.user.isActive ? "success" : "error"}
-                  >
-                    {user.user.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                  <button onClick={() => handleDelete(user.id)} className="text-red-500 hover:text-red-700">
-                        <FiTrash2 size={16} />
-                      </button>
-                      <button onClick={() => handleEdit(user)} className="text-blue-500 hover:text-blue-700">
-                        <FiEdit size={16} />
-                      </button>
-                      {user.user.isActive ? (
-                        <button onClick={() => handleStatusChange(user.id, false)} className="text-orange-500 hover:text-orange-700">
-                          <FiXCircle size={16} />
-                        </button>
-                      ) : (
-                        <button onClick={() => handleStatusChange(user.id, true)} className="text-green-500 hover:text-green-700">
-                          <FiCheckCircle size={16} />
-                        </button>
-                      )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center p-4">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`mx-1 px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
-        )}
-
-      {showForm && (
-        <UserForm
-          user={editingUser?.user}
-          onClose={() => setShowForm(false)}
-          onSubmit={handleSubmit}
-          isAdding={isAdding}
-        />
-      )}
-    </div>
-  );
-});
-
-UsersTable.displayName = "UsersTable";
-
-export default UsersTable;
-
-
-function UserForm({ user, onClose, onSubmit, isAdding }: {
-  user?: User['user'];
-  onClose: () => void;
-  onSubmit: (data: User['user']) => void;
-  isAdding: boolean;
-}) {
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: user?.address || "",
-    isActive: user?.isActive || true,
-    image: user?.image || "/images/user/default.jpg"
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value
-    }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -382,136 +339,273 @@ function UserForm({ user, onClose, onSubmit, isAdding }: {
       reader.readAsDataURL(e.target.files[0]);
     }
   };
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
-
-
   return (
-    <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-[40%] shadow-xl">
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            {isAdding ? "Add New User" : "Edit User"}
-          </h4>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-          >
-            <FiX size={25} />
-          </button>
-        </div>
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
 
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 outline-0 text-gray-700 dark:text-gray-100"
-              />
-              {formData.image && (
-                <img src={formData.image} alt="" className="mt-2 w-20 h-20 rounded-full object-cover" />
-              )}
-            </div>
-            <div className="flex justify-between">
-              <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 outline-0 text-gray-700 dark:text-gray-100"
-                required
-              />
-             
-              </div>
 
-              <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 ">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-100"
-                required
-              />
-              </div>
-            </div>
+      <div className="max-w-full overflow-x-auto">
+        <Table>
+        <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+  {/* السطر الأول: عناوين الأعمدة */}
+  <TableRow className="border-b border-gray-200">
+    <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-3 font-medium text-gray-500 dark:text-gray-400">
+      User
+    </TableCell>
+    <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-3 font-medium text-gray-500 dark:text-gray-400">
+      Email
+    </TableCell>
+    <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-3 font-medium text-gray-500 dark:text-gray-400 hidden md:table-cell">
+      Phone
+    </TableCell>
+    <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-3 font-medium text-gray-500 dark:text-gray-400 hidden lg:table-cell">
+      Address
+    </TableCell>
+    <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-3 font-medium text-gray-500 dark:text-gray-400">
+      Status
+    </TableCell>
+    <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-3 font-medium text-gray-500 dark:text-gray-400">
+      Actions
+    </TableCell>
+  </TableRow>
 
-            <div className="flex justify-between">
-              <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Phone
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-100 "
-                required
-              />
-              </div>
+  {/* السطر الثاني: حقول البحث والفلتر */}
+  <TableRow>
+    <TableCell className="px-3 py-2 sm:px-5 sm:py-3 bg-gray-50 dark:bg-gray-800">
+      <TableCellWithFilter
+        columnLabel="User"
+        searchTerm={columnFilters.name.searchTerm}
+        filterType={columnFilters.name.filterType}
+        onSearchChange={(value) => handleSearchChange('name', value)}
+        onFilterTypeChange={(type) => handleFilterTypeChange('name', type)}
+      />
+    </TableCell>
+    <TableCell className="px-3 py-2 sm:px-5 sm:py-3 bg-gray-50 dark:bg-gray-800">
+      <TableCellWithFilter
+        columnLabel="Email"
+        searchTerm={columnFilters.email.searchTerm}
+        filterType={columnFilters.email.filterType}
+        onSearchChange={(value) => handleSearchChange('email', value)}
+        onFilterTypeChange={(type) => handleFilterTypeChange('email', type)}
+      />
+    </TableCell>
+    <TableCell className="px-3 py-2 sm:px-5 sm:py-3 bg-gray-50 dark:bg-gray-800 hidden md:table-cell">
+      <TableCellWithFilter
+        columnLabel="Phone"
+        searchTerm={columnFilters.phone.searchTerm}
+        filterType={columnFilters.phone.filterType}
+        onSearchChange={(value) => handleSearchChange('phone', value)}
+        onFilterTypeChange={(type) => handleFilterTypeChange('phone', type)}
+      />
+    </TableCell>
+    <TableCell className="px-3 py-2 sm:px-5 sm:py-3 bg-gray-50 dark:bg-gray-800 hidden lg:table-cell">
+      <TableCellWithFilter
+        columnLabel="Address"
+        searchTerm={columnFilters.address.searchTerm}
+        filterType={columnFilters.address.filterType}
+        onSearchChange={(value) => handleSearchChange('address', value)}
+        onFilterTypeChange={(type) => handleFilterTypeChange('address', type)}
+      />
+    </TableCell>
+    <TableCell className="px-3 py-2 sm:px-5 sm:py-3 bg-gray-50 dark:bg-gray-800">
+      <TableCellWithFilter
+        columnLabel="Status"
+        searchTerm={columnFilters.status.searchTerm}
+        filterType={columnFilters.status.filterType}
+        onSearchChange={(value) => handleSearchChange('status', value)}
+        onFilterTypeChange={(type) => handleFilterTypeChange('status', type)}
+      />
+    </TableCell>
 
-              <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 text-gray-700 dark:text-gray-100"
-                required
-              />
-              </div>
-            </div>
+    <TableCell className="px-3 py-2 sm:px-5 sm:py-3 bg-gray-50 dark:bg-gray-800">
+      <></>
+    </TableCell>
+    
+  </TableRow>
+</TableHeader>
 
-            <div className="flex items-center">
-            <input
-                type="checkbox"
-                name="isActive"
-                id="isActive"
-                checked={formData.isActive}
-                onChange={handleChange}
-                className="mr-2 h-5 w-5 text-green-500 rounded focus:ring-green-500"
-              />
-              <label htmlFor="isActive" className="text-sm font-medium">
-                Active
-              </label>
-            </div>
-          </div>
-
-      
-          <div className="mt-6 flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded-md hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-            >
-              {isAdding ? "Add User" : "Save Changes"}
-            </button>
-          </div>
-        </form>
+          <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+            {currentUsers.map(({ id, user }) => (
+              <TableRow key={id}>
+                <TableCell className="px-3 py-2 sm:px-5 sm:py-4">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <img src={user.image} alt={user.name} className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover" />
+                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">{user.name}</span>
+                  </div>
+                </TableCell>
+                <TableCell className="text-gray-500 text-start text-theme-sm dark:text-gray-400">{user.email}</TableCell>
+                <TableCell className="text-gray-500 text-start text-theme-sm dark:text-gray-400">{user.phone}</TableCell>
+                <TableCell className="text-gray-500 text-start text-theme-sm dark:text-gray-400">{user.address}</TableCell>
+                <TableCell className="px-3 py-2 sm:px-4 sm:py-3">
+                  <Badge size="sm" color={user.isActive ? "success" : "error"}>
+                    {user.isActive ? "Active" : "Inactive"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="px-3 py-2 sm:px-4 sm:py-3">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <button onClick={() => handleDelete(id)} className="p-1 text-red-500 hover:text-red-700">
+                      <FiTrash2 size={16} />
+                    </button>
+                    <button onClick={() => handleEdit({ id, user })} className="p-1 text-blue-500 hover:text-blue-700">
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(id, !user.isActive)}
+                      className={`p-1 ${user.isActive ? 'text-orange-500 hover:text-orange-700' : 'text-green-500 hover:text-green-700'}`}
+                    >
+                      {user.isActive ? <FiXCircle size={16} /> : <FiCheckCircle size={16} />}
+                    </button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center p-4">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`mx-1 px-2 py-1 sm:px-3 sm:py-1 rounded text-sm sm:text-base ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-[700px] m-4">
+        <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+          <div className="px-2 pr-14">
+            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+              {isAdding ? 'Add New User' : 'Edit User Information'}
+            </h4>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+              {isAdding ? 'Fill in the details to add a new user' : 'Update the user details'}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+
+
+                <div className="col-span-2 lg:col-span-1">
+                  <Label>Full Name</Label>
+                  <Input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+
+                  />
+                </div>
+
+                <div className="col-span-2 lg:col-span-1">
+                  <Label>Email Address</Label>
+                  <Input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+
+                  />
+                </div>
+
+                <div className="col-span-2 lg:col-span-1">
+                  <Label>Phone Number</Label>
+                  <Input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="col-span-2 lg:col-span-1">
+                  <Label>Address</Label>
+                  <Input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+              </div>
+              <div className="mt-5">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">Image</label>
+
+                <div className="flex items-center gap-4">
+                  {formData.image && (
+                    <img src={formData.image} alt="" className="mt-2 w-20 h-20 rounded-full object-cover" />
+                  )}
+                  <FileInput onChange={handleImageChange} />
+
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+              <Button size="sm" variant="outline" onClick={() => setIsModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button size="sm">
+                {isAdding ? 'Add User' : 'Save Changes'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} className="max-w-md">
+        <div className="p-6 text-center">
+          <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">Confirm Deletion</h3>
+          <p className="mb-6 text-gray-500 dark:text-gray-400">
+            Are you sure you want to delete this user? This action cannot be undone.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Status Change Confirmation Modal */}
+      <Modal isOpen={showStatusConfirm} onClose={() => setShowStatusConfirm(false)} className="max-w-md">
+        <div className="p-6 text-center">
+          <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">
+            Confirm Status Change
+          </h3>
+          <p className="mb-6 text-gray-500 dark:text-gray-400">
+            {userToAction?.isActive
+              ? "Are you sure you want to activate this user?"
+              : "Are you sure you want to deactivate this user?"}
+          </p>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" onClick={() => setShowStatusConfirm(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmStatusChange}>
+              Confirm
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
-}
+});
+
+UsersTable.displayName = "UsersTable";
+export default UsersTable;
+
+

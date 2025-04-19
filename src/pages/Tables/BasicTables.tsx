@@ -15,11 +15,11 @@ export default function BasicTables() {
       <div className="space-y-6">
         <ComponentCard
           title={
-            <div className="flex items-center justify-between">
-              <span>Users Table</span>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-4">
+              
               <button
                 onClick={() => usersTableRef.current?.handleAdd()}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
+                className="flex items-center justify-center gap-1 px-3 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 w-full md:w-auto"
               >
                 <FiPlus size={16} />
                 Add User

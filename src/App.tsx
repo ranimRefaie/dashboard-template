@@ -5,10 +5,15 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import UserProfiles from "./pages/UserProfiles";
 import BasicTables from "./pages/Tables/BasicTables";
+import { ToastContainer } from "react-toastify";
 
 export default function App() {
   return (
     <>
+     <ToastContainer 
+          autoClose={3000}
+          position="bottom-left"
+        />
       <Router>
         <ScrollToTop />
         <Routes>
