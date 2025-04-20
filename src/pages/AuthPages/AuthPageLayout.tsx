@@ -1,18 +1,12 @@
-import React from "react";
-import GridShape from "../../components/common/GridShape";
+
 import { Link } from "react-router";
 import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
 
 
- export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+ export default function AuthLayout(){
   return (
-    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900 overflow-hidden ">
-      {/* Header with Logo (for mobile) */}
-      <header className="lg:hidden mt-4 px-4"> {/* تقليل الهوامش هنا */}
+    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900 overflow-hidden ">     
+      <header className="lg:hidden mt-4 px-4"> 
         <Link to="/" className="block mx-auto w-fit">
           <img
             className="dark:hidden w-36"
@@ -26,32 +20,6 @@ import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
           />
         </Link>
       </header>
-
-      {/* Main Content */}
-      <main className="flex flex-col justify-center flex-1 lg:flex-row">
-        {/* Form Section */}
-        <section className="flex flex-col justify-center flex-1 px-4 lg:p-0"> {/* تقليل الهوامش هنا */}
-          {children}
-        </section>
-
-        {/* Graphic Section (Desktop only) */}
-        <section className="hidden lg:flex items-center justify-center w-1/2 bg-brand-950 dark:bg-white/5">
-          <div className="relative flex items-center justify-center z-1">
-            <GridShape />
-            <div className="flex flex-col items-center max-w-xs">
-              <Link to="/" className="block mb-4">
-                <img
-                  width={231}
-                  height={48}
-                  src="/images/logo/auth-logo.svg"
-                  alt="Logo"
-                />
-              </Link>
-            </div>
-          </div>
-        </section>
-      </main>
-
       {/* Theme Toggler */}
       <div className="fixed z-50 bottom-6 right-6">
         <ThemeTogglerTwo />
