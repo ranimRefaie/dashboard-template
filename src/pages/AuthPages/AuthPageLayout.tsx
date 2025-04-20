@@ -10,27 +10,19 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900 overflow-hidden pb-16">
       {/* Header with Logo (for mobile) */}
-      <header className="lg:hidden pt-6 px-6">
+      <header className="lg:hidden pt-4 px-4">
         <Link to="/" className="block mx-auto w-fit">
-          <img
-            className="dark:hidden w-36"
-            src="./images/logo/logo.svg"
-            alt="Logo"
-          />
-          <img
-            className="hidden dark:block w-36"
-            src="./images/logo/logo-dark.svg"
-            alt="Logo"
-          />
+          <img className="dark:hidden w-36" src="./images/logo/logo.svg" alt="Logo" />
+          <img className="hidden dark:block w-36" src="./images/logo/logo-dark.svg" alt="Logo" />
         </Link>
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-col flex-1 lg:flex-row">
+      <main className="flex flex-col flex-1 lg:flex-row overflow-y-auto">
         {/* Form Section */}
-        <section className="flex flex-col md:justify-center  flex-1 p-6 lg:p-0">
+        <section className="flex flex-col md:justify-center flex-1 p-4 sm:p-6 lg:p-0">
           {children}
         </section>
 

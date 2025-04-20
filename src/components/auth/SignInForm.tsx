@@ -11,7 +11,7 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto py-4">
       <div className="text-center lg:text-left mb-3">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
           Sign In
