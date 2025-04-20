@@ -1,24 +1,24 @@
-import { useState } from "react";
-import { Link } from "react-router";
-import { EyeCloseIcon, EyeIcon } from "../../icons";
-import Label from "../form/Label";
-import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
-import Button from "../ui/button/Button";
+// import { useState } from "react";
+// import { Link } from "react-router";
+// import { EyeCloseIcon, EyeIcon } from "../../icons";
+// import Label from "../form/Label";
+// import Input from "../form/input/InputField";
+// import Checkbox from "../form/input/Checkbox";
+// import Button from "../ui/button/Button";
 
 export default function SignInForm() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
+  // const [isChecked, setIsChecked] = useState(false);
 
   return (
-    <div className="w-full max-w-md mx-auto py-2">
-      <div className="text-center lg:text-left">
+    <div className="w-full max-w-md mx-auto">
+      {/* <div className="text-center lg:text-left">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
           Sign In
         </h1>
-      </div>
+      </div> */}
 
-      <form className="space-y-5">
+      {/* <form className="space-y-5">
         <div>
           <Label>
             Email <span className="text-error-500">*</span>
@@ -76,9 +76,9 @@ export default function SignInForm() {
         <Button className="w-full" size="sm">
           Sign in
         </Button>
-      </form>
+      </form> */}
 
-      <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
+      {/* <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
         Don't have an account?{" "}
         <Link
           to="/signup"
@@ -86,7 +86,7 @@ export default function SignInForm() {
         >
           Sign Up
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 }
