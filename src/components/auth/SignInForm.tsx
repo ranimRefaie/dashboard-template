@@ -11,8 +11,8 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
 
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
-      <div className="text-center lg:text-left mb-8">
+    <div className="w-full max-w-md mx-auto">
+      <div className="text-center lg:text-left mb-3">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
           Sign In
         </h1>
@@ -78,7 +78,7 @@ export default function SignInForm() {
         </Button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+      <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
         Don't have an account?{" "}
         <Link
           to="/signup"

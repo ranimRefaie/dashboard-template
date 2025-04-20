@@ -9,8 +9,8 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   return (
-    <div className="w-full max-w-md mx-auto mt-8">
-      <div className="text-center lg:text-left mb-8">
+    <div className="w-full max-w-md mx-auto">
+      <div className="text-center lg:text-left mb-3">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
         Sign Up
         </h1>
@@ -105,7 +105,7 @@ export default function SignUpForm() {
         </div>
       </form>
 
-      <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+      <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
       Already have an account? {""}
                 <Link
                   to="/signin"

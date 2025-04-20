@@ -3,23 +3,24 @@ import GridShape from "../../components/common/GridShape";
 import { Link } from "react-router";
 import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
 
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="relative flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden">
       {/* Header with Logo (for mobile) */}
       <header className="lg:hidden pt-6 px-6">
         <Link to="/" className="block mx-auto w-fit">
           <img
-            className="dark:hidden w-48"
+            className="dark:hidden w-36"
             src="./images/logo/logo.svg"
             alt="Logo"
           />
           <img
-            className="hidden dark:block w-48"
+            className="hidden dark:block w-36"
             src="./images/logo/logo-dark.svg"
             alt="Logo"
           />
