@@ -291,9 +291,9 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
                       alt={user.name}
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                     />
-                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90 truncate ">
-                      {user.name}
-                    </span>
+                    <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90 pr-5 md:pr-0">
+  {user.name}
+</span>
                   </div>
                 </TableCell>
                 <TableCell className=" font-medium text-gray-500 text-theme-sm dark:text-gray-400 truncate  px-3 py-2 sm:px-5 sm:py-4">{user.email}</TableCell>
