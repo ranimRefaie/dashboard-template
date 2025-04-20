@@ -30,7 +30,7 @@ export default function AuthLayout({
       {/* Main Content */}
       <main className="flex flex-col justify-center  flex-1 lg:flex-row h-full">
         {/* Form Section */}
-        <section className="flex flex-col justify-center  flex-1 p-6 lg:p-0">
+        <section className="flex flex-col justify-center  flex-1 px-6 lg:p-0">
           {children}
         </section>
 
