@@ -10,9 +10,9 @@ import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative grid grid-rows-[auto_1fr_auto] min-h-screen bg-white dark:bg-gray-900">
+    <div className="relative flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden ">
       {/* Header with Logo (for mobile) */}
-      <header className="lg:hidden mt-4 px-4 row-start-1"> 
+      <header className="lg:hidden mt-4 px-4"> 
         <Link to="/" className="block mx-auto w-fit">
           <img
             className="dark:hidden w-36"
@@ -28,9 +28,9 @@ import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
       </header>
 
       {/* Main Content */}
-      <main className="row-start-2 flex items-center">
+      <main className="flex flex-col justify-center flex-1 lg:flex-row">
         {/* Form Section */}
-        <section className="w-full px-4 lg:p-0"> 
+        <section className="flex flex-col justify-center flex-1 px-4 lg:p-0"> 
           {children}
         </section>
 
@@ -53,7 +53,7 @@ import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
       </main>
 
       {/* Theme Toggler */}
-      <div className="fixed z-50 bottom-6 right-6 row-start-3">
+      <div className="fixed z-50 bottom-6 right-6">
         <ThemeTogglerTwo />
       </div>
     </div>
