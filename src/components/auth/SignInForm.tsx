@@ -12,7 +12,7 @@ export default function SignInForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="text-center lg:text-left mb-3">
+      <div className="text-center lg:text-left">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
           Sign In
         </h1>
