@@ -11,14 +11,14 @@ export default function SignInForm() {
 const [isChecked, setIsChecked] = useState(false);
 
   return (
-    <div className="w-full max-w-md mx-auto py-2">
+    <div className="hidden w-full max-w-md mx-auto py-2">
       <div className="text-center lg:text-left">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white/90">
           Sign In
         </h1>
       </div>
 
-      <form className="space-y-5">
+      <form className=" space-y-5">
         <div>
           <Label>
             Email <span className="text-error-500">*</span>
