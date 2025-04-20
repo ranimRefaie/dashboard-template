@@ -10,7 +10,7 @@ import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
   children: React.ReactNode;
 }) {
   return (
-    <div className=" ">
+    <div className="relative flex flex-col  bg-white dark:bg-gray-900 ">
       {/* Header with Logo (for mobile) */}
       <header className="lg:hidden mt-4 px-4"> {/* تقليل الهوامش هنا */}
         <Link to="/" className="block mx-auto w-fit">
