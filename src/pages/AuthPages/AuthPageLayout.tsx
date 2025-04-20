@@ -9,27 +9,33 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-          <Link to="/" className="lg:hidden w-full">
-            <img
-              className="dark:hidden mx-auto pt-3 w-80"
-              src="./images/logo/logo.svg"
-              alt="Logo"
-            />
-            <img
-              className="hidden dark:block mx-auto pt-8 w-80"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-             
-            />
-          </Link>
-      <div className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
-        
-        {children}
+    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900">
+      {/* Header with Logo (for mobile) */}
+      <header className="lg:hidden pt-6 px-6">
+        <Link to="/" className="block mx-auto w-fit">
+          <img
+            className="dark:hidden w-48"
+            src="./images/logo/logo.svg"
+            alt="Logo"
+          />
+          <img
+            className="hidden dark:block w-48"
+            src="./images/logo/logo-dark.svg"
+            alt="Logo"
+          />
+        </Link>
+      </header>
 
-        <div className="items-center hidden w-full h-full lg:w-1/2 bg-brand-950 dark:bg-white/5 lg:grid">
+      {/* Main Content */}
+      <main className="flex flex-col flex-1 lg:flex-row">
+        {/* Form Section */}
+        <section className="flex flex-col md:justify-center  flex-1 p-6 lg:p-0">
+          {children}
+        </section>
+
+        {/* Graphic Section (Desktop only) */}
+        <section className="hidden lg:flex items-center justify-center w-1/2 bg-brand-950 dark:bg-white/5">
           <div className="relative flex items-center justify-center z-1">
-            {/* <!-- ===== Common Grid Shape Start ===== --> */}
             <GridShape />
             <div className="flex flex-col items-center max-w-xs">
               <Link to="/" className="block mb-4">
@@ -40,13 +46,14 @@ export default function AuthLayout({
                   alt="Logo"
                 />
               </Link>
-              
             </div>
           </div>
-        </div>
-        <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
-          <ThemeTogglerTwo />
-        </div>
+        </section>
+      </main>
+
+      {/* Theme Toggler */}
+      <div className="fixed z-50 bottom-6 right-6">
+        <ThemeTogglerTwo />
       </div>
     </div>
   );

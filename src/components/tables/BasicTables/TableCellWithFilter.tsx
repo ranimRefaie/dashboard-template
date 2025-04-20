@@ -34,7 +34,7 @@ export const TableCellWithFilter = ({
 
   return (
     <div className={`flex items-center gap-1 ${className}`}>
-      {/* حقل البحث */}
+    
       <div className="relative flex-1">
         <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
           <FiSearch className="text-gray-400" size={14} />
