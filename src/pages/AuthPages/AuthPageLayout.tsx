@@ -1,5 +1,5 @@
 import React from "react";
-import GridShape from "../../components/common/GridShape";
+
 import { Link } from "react-router";
 import ThemeTogglerTwo from "../../components/common/ThemeTogglerTwo";
 
@@ -12,7 +12,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="relative flex flex-col min-h-screen bg-white dark:bg-red-300">
       {/* Header */}
       <header className="lg:hidden py-4 px-4 flex-none">
         <Link to="/" className="block mx-auto w-fit">
