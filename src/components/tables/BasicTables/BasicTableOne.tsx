@@ -412,7 +412,7 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
                 </div>
               </div>
 
-              <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-2 px-2 mt-4  dark:border-gray-700">
+              <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-2 px-2 mt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex justify-end gap-3">
                   <Button size="sm" variant="outline" onClick={() => setIsModalOpen(false)}>
                     Cancel
@@ -431,7 +431,7 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
         <div className="no-scrollbar relative w-full max-w-[700px] bg-white rounded-3xl dark:bg-gray-900">
           <div className="p-4 lg:p-6">
             <div className="px-2">
-              <h4 className="mb-5 mt-2 text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h4 className="mb-5 mt-0 md:mt-2 text-xl font-semibold text-gray-800 dark:text-white/90">
                 Confirm Deletion
               </h4>
               <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
