@@ -12,15 +12,15 @@ export default function AuthLayout({
   return (
     <div className="relative grid grid-rows-[auto_1fr_auto] min-h-[100dvh] bg-white dark:bg-gray-900">
       {/* Header with Logo (for mobile) */}
-      <header className="lg:hidden h-[33.33vh] flex items-center justify-center px-4">
-        <Link to="/" className="block">
+      <header className="lg:hidden py-4 px-4 row-start-1">
+        <Link to="/" className="block mx-auto w-fit">
           <img
-            className="dark:hidden w-52 max-w-full"
+            className="dark:hidden w-36"
             src="./images/logo/logo.svg"
             alt="Logo"
           />
           <img
-            className="hidden dark:block w-40 max-w-full"
+            className="hidden dark:block w-36"
             src="./images/logo/logo-dark.svg"
             alt="Logo"
           />
