@@ -10,7 +10,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col h-screen bg-white dark:bg-red-300 overflow-hidden lg:overflow-auto">
+    <div className="relative flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden lg:overflow-auto">
       {/* Header with Logo (for mobile) */}
       <header className="lg:hidden mt-4 px-4"> 
         <Link to="/" className="block mx-auto w-fit">
