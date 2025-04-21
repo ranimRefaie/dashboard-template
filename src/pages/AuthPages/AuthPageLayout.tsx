@@ -28,7 +28,7 @@ export default function AuthLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto sm:overflow-hidden">
         {/* Form Section - مركز في جميع الشاشات */}
         <section className="flex-1 flex items-center justify-center p-4 lg:p-0">
           <div className="w-full max-w-md mx-auto">
