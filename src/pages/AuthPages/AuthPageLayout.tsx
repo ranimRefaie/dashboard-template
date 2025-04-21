@@ -10,9 +10,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col h-screen bg-white dark:bg-red-300 overflow-hidden lg:overflow-auto">
+    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900">
       {/* Header with Logo (for mobile) */}
-      <header className="lg:hidden mt-4 px-4"> 
+      <header className="lg:hidden py-4 px-4 flex-none">
         <Link to="/" className="block mx-auto w-fit">
           <img
             className="dark:hidden w-36"
@@ -28,10 +28,12 @@ export default function AuthLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-col justify-center flex-1 lg:flex-row">
-        {/* Form Section */}
-        <section className="flex flex-col justify-center flex-1 px-4 lg:p-0"> 
-          {children}
+      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Form Section - مركز في جميع الشاشات */}
+        <section className="flex-1 flex items-center justify-center p-4 lg:p-0">
+          <div className="w-full max-w-md mx-auto">
+            {children}
+          </div>
         </section>
 
         {/* Graphic Section (Desktop only) */}
