@@ -10,9 +10,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="relative grid grid-rows-[auto_1fr_auto] min-h-[100dvh] bg-white dark:bg-yellow-200">
       {/* Header with Logo (for mobile) */}
-      <header className="lg:hidden py-4 px-4 flex-none">
+      <header className="lg:hidden py-4 px-4 row-start-1">
         <Link to="/" className="block mx-auto w-fit">
           <img
             className="dark:hidden w-36"
@@ -28,16 +28,16 @@ export default function AuthLayout({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-y-auto sm:overflow-hidden">
-        {/* Form Section - مركز في جميع الشاشات */}
-        <section className="flex-1 flex items-center justify-center p-4 lg:p-0">
-          <div className="w-full max-w-md mx-auto">
+      <main className="row-start-2 grid lg:grid-cols-2 h-full">
+        {/* Form Section */}
+        <section className="flex items-center justify-center p-4 lg:p-8">
+          <div className="w-full max-w-md">
             {children}
           </div>
         </section>
 
         {/* Graphic Section (Desktop only) */}
-        <section className="hidden lg:flex items-center justify-center w-1/2 bg-brand-950 dark:bg-white/5">
+        <section className="hidden lg:flex items-center justify-center bg-brand-950 dark:bg-white/5">
           <div className="relative flex items-center justify-center z-1">
             <GridShape />
             <div className="flex flex-col items-center max-w-xs">
@@ -55,7 +55,7 @@ export default function AuthLayout({
       </main>
 
       {/* Theme Toggler */}
-      <div className="fixed z-50 bottom-6 right-6">
+      <div className="fixed z-50 bottom-6 right-6 row-start-3">
         <ThemeTogglerTwo />
       </div>
     </div>
