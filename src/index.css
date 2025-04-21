@@ -776,3 +776,11 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+
+/* في ملف CSS الخاص بك */
+@media (max-width: 640px) {
+  .overflow-hidden {
+    overflow: hidden; /* إخفاء شريط التمرير */
+  }
+}
