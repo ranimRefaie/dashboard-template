@@ -10,7 +10,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative grid grid-rows-[auto_1fr_auto] min-h-[100dvh] bg-white dark:bg-yellow-200">
+    <div className="relative grid grid-rows-[auto_1fr_auto] min-h-[100dvh] bg-white dark:bg-gray-900">
       {/* Header with Logo (for mobile) */}
       <header className="lg:hidden py-4 px-4 row-start-1">
         <Link to="/" className="block mx-auto w-fit">
