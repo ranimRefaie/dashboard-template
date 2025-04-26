@@ -11,8 +11,8 @@ import {
   UserCircleIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-
-
+import { LuUsersRound } from "react-icons/lu";
+import { RiUserSettingsLine } from "react-icons/ri";
 type NavItem = {
   name: string;
   icon: React.ReactNode;
@@ -24,7 +24,19 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Users", path: "/", pro: false }],
+    path:'/'
+  //  subItems : [{ name: "Users", path: "/", pro: false }],
+
+  },
+  {
+    icon: <LuUsersRound />,
+    name: "Users",
+    path: "/users",
+  },
+  {
+    icon: <RiUserSettingsLine />,
+    name: "Roles",
+    path: "/roles",
   },
   {
     icon: <UserCircleIcon />,

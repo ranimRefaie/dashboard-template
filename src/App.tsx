@@ -6,6 +6,8 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import UserProfiles from "./pages/UserProfiles";
 import BasicTables from "./pages/Tables/BasicTables";
 import { ToastContainer } from "react-toastify";
+import Home from "./pages/Dashboard/Home";
+import SubTables from "./pages/Tables/SubTables";
 
 export default function App() {
   return (
@@ -19,7 +21,9 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
-          <Route path="/" element={<BasicTables />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/users" element={<BasicTables />} />
+          <Route path="/roles" element={<SubTables/>} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />

@@ -9,6 +9,7 @@ import Label from "../../form/Label";
 import Button from "../../ui/button/Button";
 import FileInput from "../../form/input/FileInput";
 import { toast } from "react-toastify";
+import Select from "../../form/Select";
 
 interface User {
   id: number;
@@ -19,6 +20,7 @@ interface User {
     phone: string;
     address: string;
     isActive: boolean;
+    role: string;
   };
 }
 
@@ -32,6 +34,7 @@ const initialData: User[] = [
       phone: "+1 234 567 890",
       address: "New York, USA",
       isActive: true,
+      role:''
     },
   },
   {
@@ -43,6 +46,7 @@ const initialData: User[] = [
       phone: "+1 345 678 901",
       address: "London, UK",
       isActive: false,
+      role:''
     },
   },
   {
@@ -54,6 +58,7 @@ const initialData: User[] = [
       phone: "+1 456 789 012",
       address: "Berlin, Germany",
       isActive: true,
+      role:''
     },
   },
   {
@@ -65,6 +70,7 @@ const initialData: User[] = [
       phone: "+1 567 890 123",
       address: "Paris, France",
       isActive: true,
+      role:''
     },
   },
   {
@@ -76,6 +82,7 @@ const initialData: User[] = [
       phone: "+1 678 901 234",
       address: "Tokyo, Japan",
       isActive: false,
+      role:''
     },
 
   },
@@ -88,6 +95,7 @@ const initialData: User[] = [
       phone: "+1 234 567 890",
       address: "New York, USA",
       isActive: true,
+      role:''
     },
   },
   {
@@ -99,6 +107,7 @@ const initialData: User[] = [
       phone: "+1 345 678 901",
       address: "London, UK",
       isActive: false,
+      role:''
     },
   },
   {
@@ -110,6 +119,7 @@ const initialData: User[] = [
       phone: "+1 456 789 012",
       address: "Berlin, Germany",
       isActive: true,
+      role:''
     },
   },
   {
@@ -121,6 +131,7 @@ const initialData: User[] = [
       phone: "+1 234 567 890",
       address: "New York, USA",
       isActive: true,
+      role:''
     },
   },
   {
@@ -132,6 +143,7 @@ const initialData: User[] = [
       phone: "+1 345 678 901",
       address: "London, UK",
       isActive: false,
+      role:''
     },
   },
   {
@@ -143,6 +155,7 @@ const initialData: User[] = [
       phone: "+1 456 789 012",
       address: "Berlin, Germany",
       isActive: true,
+      role:''
     },
   },
 ];
@@ -163,7 +176,8 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
     email: "",
     phone: "",
     address: "",
-    isActive: true
+    isActive: true,
+    role:''
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showStatusConfirm, setShowStatusConfirm] = useState(false);
@@ -220,7 +234,8 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
         email: "",
         phone: "",
         address: "",
-        isActive: true
+        isActive: true,
+        role:''
       });
       setIsAdding(true);
       setIsModalOpen(true);
@@ -229,22 +244,17 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (editingUser) {
       setUsers(users.map(user =>
         user.id === editingUser.id ? { ...user, user: formData } : user
       ));
-      toast.success("User updated successfully");
     } else {
       const newUser = {
         id: Math.max(...users.map(u => u.id), 0) + 1,
-        user: {
-          ...formData,
-          image: formData.image || '/images/user/user-01.jpg'
-        }
+        user: { ...formData }
       };
       setUsers([...users, newUser]);
-      toast.success("User added successfully");
     }
     setIsModalOpen(false);
   };
@@ -263,16 +273,18 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
       reader.readAsDataURL(e.target.files[0]);
     }
   };
+
+ 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-
-
-
       <div className="max-w-full overflow-x-auto">
         <Table>
           <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
             <TableRow>
               <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-4 font-medium text-gray-500  text-theme-xs dark:text-gray-400">User</TableCell>
+              <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-4 font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                Role
+              </TableCell>
               <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-4 font-medium text-gray-500  text-theme-xs dark:text-gray-400">Email</TableCell>
               <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-4 font-medium text-gray-500  text-theme-xs dark:text-gray-400 ">Phone</TableCell>
               <TableCell isHeader className="px-3 py-2 sm:px-5 sm:py-4 font-medium text-gray-500  text-theme-xs dark:text-gray-400 ">Address</TableCell>
@@ -292,10 +304,16 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                     />
                     <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90 pr-5 md:pr-0">
-  {user.name}
-</span>
+                      {user.name}
+                    </span>
                   </div>
                 </TableCell>
+                <TableCell className="px-3 py-2 sm:px-5 sm:py-4">
+  <Badge color="primary">
+    {user.role === "suber-admin" ? "Super Administrator" : 
+     user.role === "admin" ? "Administrator" : "Viewer"}
+  </Badge>
+</TableCell>
                 <TableCell className=" font-medium text-gray-500 text-theme-sm dark:text-gray-400 truncate  px-3 py-2 sm:px-5 sm:py-4">{user.email}</TableCell>
                 <TableCell className=" font-medium text-gray-500 text-theme-sm dark:text-gray-400 truncate px-3 py-2 sm:px-5 sm:py-4">{user.phone}</TableCell>
                 <TableCell className=" font-medium text-gray-500 text-theme-sm dark:text-gray-400 truncate px-3 py-2 sm:px-5 sm:py-4">{user.address}</TableCell>
@@ -365,7 +383,23 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
                       onChange={handleInputChange}
                     />
                   </div>
-
+                  <div className="sm:col-span-2">
+  <Label>Role</Label>
+  <Select
+    options={[
+      { value: "super-admin", label: "Super Administrator" },
+      { value: "admin", label: "Administrator" },
+      { value: "viewer", label: "Viewer" }
+    ]}
+    placeholder="Select user role"
+    onChange={(value) => setFormData(prev => ({
+      ...prev,
+      role: value
+    }))}
+    defaultValue={editingUser?.user.role || ""}
+    className=""
+  />
+</div>
                   <div className="sm:col-span-2 lg:col-span-1">
                     <Label>Email Address</Label>
                     <Input
@@ -458,12 +492,12 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
           <div className="p-4 lg:p-6">
             <div className="px-2">
               <h4 className="mb-5 mt-2 text-xl font-semibold text-gray-800 dark:text-white/90">
-              Confirm Status Change
+                Confirm Status Change
               </h4>
               <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-              {userToAction?.isActive
-              ? "Are you sure you want to activate this user?"
-              : "Are you sure you want to deactivate this user?"}
+                {userToAction?.isActive
+                  ? "Are you sure you want to activate this user?"
+                  : "Are you sure you want to deactivate this user?"}
               </p>
             </div>
             <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-2 px-2 mt-4  dark:border-gray-700">
@@ -472,7 +506,7 @@ const UsersTable = forwardRef<UsersTableHandle>((_, ref) => {
                   Cancel
                 </Button>
                 <Button onClick={confirmStatusChange} size="sm">
-                Confirm
+                  Confirm
                 </Button>
               </div>
             </div>

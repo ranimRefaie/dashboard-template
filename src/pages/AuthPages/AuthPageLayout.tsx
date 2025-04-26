@@ -15,7 +15,7 @@ export default function AuthLayout({
       <header className="lg:hidden py-4 px-4 row-start-1">
         <Link to="/" className="block mx-auto w-fit">
           <img
-            className="dark:hidden w-36"
+            className="dark:hidden "
             src="./images/logo/logo.svg"
             alt="Logo"
           />
