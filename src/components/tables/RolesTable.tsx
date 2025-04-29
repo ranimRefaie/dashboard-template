@@ -350,7 +350,7 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
                                                             Category
                                                         </th>
                                                         {actions.map(action => (
-                                                            <th key={action} className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider capitalize">
+                                                            <th key={action} className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300  tracking-wider capitalize">
                                                                 {action}
                                                             </th>
                                                         ))}
@@ -385,7 +385,7 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
                                 </div>
                             </div>
 
-                            <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-2 px-2 mt-4 border-t border-gray-200 dark:border-gray-700">
+                            <div className="sticky bottom-0 bg-white dark:bg-gray-900 pt-4 pb-2 px-2 mt-4  dark:border-gray-700">
                                 <div className="flex justify-end gap-3">
                                     <Button size="sm" variant="outline" onClick={() => setIsModalOpen(false)}>
                                         Cancel
