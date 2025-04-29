@@ -5,6 +5,7 @@ import { Modal } from "../ui/modal";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Button from "../ui/button/Button";
+import Checkbox from "../form/input/Checkbox";
 
 interface Role {
     id: number;
@@ -14,32 +15,72 @@ interface Role {
     permissions: string[];
 }
 
+// دالة لاستخراج جميع الإجراءات المتاحة من الصلاحيات
+const getAvailableActions = (permissions: string[]) => {
+    const actions = new Set<string>();
+    permissions.forEach(permission => {
+        const action = permission.split(':')[1];
+        actions.add(action);
+    });
+    return Array.from(actions);
+};
+
+// دالة لتحويل الصلاحيات إلى شكل جدولي
+const getPermissionMatrix = (permissions: string[]) => {
+    const matrix: Record<string, Record<string, boolean>> = {};
+    const actions = getAvailableActions(permissions);
+
+    permissions.forEach(permission => {
+        const [category, action] = permission.split(':');
+        if (!matrix[category]) {
+            matrix[category] = {};
+            actions.forEach(a => {
+                matrix[category][a] = false;
+            });
+        }
+        matrix[category][action] = true;
+    });
+
+    return {
+        matrix,
+        actions: actions.sort()
+    };
+};
+
 const initialRoles: Role[] = [
     {
         id: 1,
         name: "Super Admin",
         description: "Full access to all features",
         usersCount: 5,
-        permissions: [ "dashboard: view",
-            "users: create",
-            "users: update",
-            "users: delete",
-            "content: read",
-            "content: write",
-            "settings: read",
-            "settings: write",
-            'role: manage'],
+        permissions: [
+            "dashboard:view",
+            "users:create",
+            "users:update",
+            "users:delete",
+            "users:view",
+            "content:read",
+            "content:write",
+            "content:delete",
+            "settings:read",
+            "settings:write",
+            "role:manage",
+            "role:view"
+        ],
     },
     {
         id: 2,
         name: "Admin",
         description: "Can create and edit users",
         usersCount: 12,
-        permissions: [ "dashboard: view",
-            "users: create",
-            "users: update",
-            "content: read",
-            "content: write",],
+        permissions: [
+            "dashboard:view",
+            "users:create",
+            "users:update",
+            "users:view",
+            "content:read",
+            "content:write",
+        ],
     },
     {
         id: 3,
@@ -47,7 +88,10 @@ const initialRoles: Role[] = [
         description: "Can only view content",
         usersCount: 25,
         permissions: [
-            "content: read",],
+            "dashboard:view",
+            "content:read",
+            "users:view"
+        ],
     },
 ];
 
@@ -77,16 +121,23 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
     );
 
     const availablePermissions = [
-        "dashboard: view",
-        "users: create",
-        "users: update",
-        "users: delete",
-        "content: read",
-        "content: write",
-        "settings: read",
-        "settings: write",
-        'role: manage'
+        "dashboard:view",
+        "users:create",
+        "users:update",
+        "users:delete",
+        "users:view",
+        "content:read",
+        "content:write",
+        "content:delete",
+        "settings:read",
+        "settings:write",
+        "role:manage",
+        "role:view"
     ];
+
+    // تحضير بيانات الجدول
+    const { matrix: permissionMatrix, actions } = getPermissionMatrix(availablePermissions);
+    const categories = Object.keys(permissionMatrix).sort();
 
     const handleDelete = (id: number) => {
         setRoleToDelete(id);
@@ -157,13 +208,21 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handlePermissionChange = (permission: string) => {
+    const handlePermissionChange = (permission: string, isChecked: boolean) => {
         setFormData((prev) => {
-            const newPermissions = prev.permissions.includes(permission)
-                ? prev.permissions.filter((p) => p !== permission)
-                : [...prev.permissions, permission];
+            let newPermissions;
+            if (isChecked) {
+                newPermissions = [...prev.permissions, permission];
+            } else {
+                newPermissions = prev.permissions.filter(p => p !== permission);
+            }
             return { ...prev, permissions: newPermissions };
         });
+    };
+
+    // دالة للتحقق إذا كانت الصلاحية مفعلة
+    const isPermissionChecked = (permission: string) => {
+        return formData.permissions.includes(permission);
     };
 
     return (
@@ -244,8 +303,8 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
             )}
 
             {/* Add/Edit Role Modal */}
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-[700px] m-4">
-                <div className="no-scrollbar relative w-full max-w-[700px] bg-white rounded-3xl dark:bg-gray-900">
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="max-w-[800px] m-4">
+                <div className="no-scrollbar relative w-full max-w-[800px] bg-white rounded-3xl dark:bg-gray-900">
                     <div className="p-4 lg:p-6">
                         <div className="px-2">
                             <h4 className="mb-2 text-xl font-semibold text-gray-800 dark:text-white/90">
@@ -268,7 +327,6 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
                                             name="name"
                                             value={formData.name}
                                             onChange={handleInputChange}
-
                                         />
                                     </div>
 
@@ -280,29 +338,48 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
                                             value={formData.description}
                                             onChange={handleInputChange}
                                         />
-
                                     </div>
 
-                                    <div className="sm:col-span-2 lg:col-span-1">
-                                    <Label>Permissions</Label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                            {availablePermissions.map((permission) => (
-                                                <div key={permission} className="flex items-center">
-                                                    <input
-                                                        type="checkbox"
-                                                        id={permission}
-                                                        checked={formData.permissions.includes(permission)}
-                                                        onChange={() => handlePermissionChange(permission)}
-                                                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-                                                    />
-                                                    <label
-                                                        htmlFor={permission}
-                                                        className="ml-2 text-sm text-gray-700 dark:text-gray-300"
-                                                    >
-                                                        {permission}
-                                                    </label>
-                                                </div>
-                                            ))}
+                                    <div className="sm:col-span-2">
+                                        <Label>Permissions</Label>
+                                        <div className="overflow-x-auto">
+                                            <table className="min-w-full border rounded-lg dark:border-gray-700">
+                                                <thead className="bg-gray-50 dark:bg-gray-800">
+                                                    <tr>
+                                                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                                            Category
+                                                        </th>
+                                                        {actions.map(action => (
+                                                            <th key={action} className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider capitalize">
+                                                                {action}
+                                                            </th>
+                                                        ))}
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+                                                    {categories.map(category => (
+                                                        <tr key={category}>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200 capitalize">
+                                                                {category}
+                                                            </td>
+                                                            {actions.map(action => {
+                                                                const permission = `${category}:${action}`;
+                                                                const isChecked = isPermissionChecked(permission);
+                                                                return (
+                                                                    <td className="px-4 py-3 text-center align-middle">
+                                                                        <div className="flex justify-center">
+                                                                            <Checkbox
+                                                                                checked={isChecked}
+                                                                                onChange={(checked) => handlePermissionChange(permission, checked)}
+                                                                            />
+                                                                        </div>
+                                                                    </td>
+                                                                );
+                                                            })}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -322,8 +399,6 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
                     </div>
                 </div>
             </Modal>
-
-
 
             {/* Delete Confirmation Modal */}
             <Modal
@@ -367,6 +442,3 @@ const RolesTable = forwardRef<RolesTableHandle>((_, ref) => {
 
 RolesTable.displayName = "RolesTable";
 export default RolesTable;
-
-
-
